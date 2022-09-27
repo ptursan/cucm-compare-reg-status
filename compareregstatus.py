@@ -42,13 +42,15 @@ if __name__ == "__main__":
     # Build Client Object for RisPort70 Service
 
     wsdl = f'https://{server}:8443/realtimeservice2/services/RISService70?wsdl'
-
+    location = f'https://{server}:8443/realtimeservice2/services/RISService70'
+    binding = '{http://schemas.cisco.com/ast/soap}RisBinding'
     session = Session()
     session.verify = False
     session.auth = HTTPBasicAuth(username, password)
 
     transport = Transport(cache=SqliteCache(), session=session, timeout=20)
     client = Client(wsdl=wsdl, transport=transport, plugins=[history])
+    service = client.create_service(binding, location)
 
     def show_history():
         for hist in [history.last_sent, history.last_received]:
@@ -93,7 +95,7 @@ if __name__ == "__main__":
     StateInfo = ''
 
     try:
-        resp = client.service.selectCmDeviceExt(
+        resp = service.selectCmDeviceExt(
             CmSelectionCriteria=CmSelectionCriteria,
             StateInfo=StateInfo)
     except Fault:
@@ -123,7 +125,7 @@ while True:
     input("...")
 
     try:
-        resp = client.service.selectCmDeviceExt(
+        resp = service.selectCmDeviceExt(
             CmSelectionCriteria=CmSelectionCriteria,
             StateInfo=StateInfo)
     except Fault:
